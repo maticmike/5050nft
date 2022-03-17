@@ -1,0 +1,17 @@
+node_modules
+.env
+.secret
+coverage
+coverage.json
+typechain
+.infura
+.etherscan
+.polygonscan
+
+#Hardhat files
+cache
+artifacts
+.secret
+.secret2
+scripts
+.openzeppelin
