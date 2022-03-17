@@ -33,20 +33,19 @@ contract FiftyFifty is Initializable, ERC721EnumerableUpgradeable, VRFConsumerBa
     mapping(uint256 => mapping(address => uint8)) mintsPerWeek;
     
     mapping(uint16 => uint256) private quarterlyTotal;
-    //mapping(uint8 => uint256) private yearlyTotal;
 
     mapping(uint256 => uint8) public tokenToRarity;
+    mapping(uint256 => mapping(uint8 => string)) private weeklyRarityURI;
+    mapping(uint256 => uint16) private mintQueue;
+    mapping(address => bool) private admins;
+
     mapping(bytes32 => Minting) private responseIdToMint;
     mapping(bytes32 => uint8) private responseIdToAction;
-    mapping(uint256 => mapping(uint8 => string)) private weeklyRarityURI;
-    mapping(address => bool) private admins;
 
     // for quarterly we'll need to do something like map from quarter -> rarity tier -> uint256 array
     mapping(uint16 => mapping(uint8 => uint256[])) quarterlyToTokenID;
     mapping(uint16 => uint16) quarterlyToWeight;
-    //mapping(uint8 => mapping(uint8 => uint256[])) yearlyToTokenID;
-
-    // lets save seeds for every drawing for verification
+    
     mapping(uint256 => uint256) public weeklySeed;
     mapping(uint16 => uint256) public quarterlySeed;
     mapping(uint8 => uint256) public yearlySeed;
@@ -75,11 +74,6 @@ contract FiftyFifty is Initializable, ERC721EnumerableUpgradeable, VRFConsumerBa
     bool public drawingInProgress;
 
     IERC20Upgradeable weth;
-
-    // End V1 Storage
-
-    // V4 Storage Start
-    mapping(uint256 => uint16) private mintQueue;
 
     // Mainnet LINK
     // TOKEN        0xb0897686c545045aFc77CF20eC7A532E3120E0F1
