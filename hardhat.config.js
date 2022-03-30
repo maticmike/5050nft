@@ -38,6 +38,10 @@ module.exports = {
     polygonMumbai: {
       url: `https://polygon-mumbai.infura.io/v3/${infura}`,
       accounts: [`0x${key}`]
+    },
+    polygon: {
+      url: `https://polygon-mainnet.infura.io/v3/${infura}`,
+      accounts: [`0x${key}`]
     }
   },
   etherscan: {

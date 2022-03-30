@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 
-contract FiftyFifty is Initializable, ERC721EnumerableUpgradeable, VRFConsumerBaseUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable {
+contract FiftyFiftyV2 is Initializable, ERC721EnumerableUpgradeable, VRFConsumerBaseUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable {
     using StringsUpgradeable for uint256;
 /*
     ███████╗░█████╗░░░░░██╗███████╗░█████╗░  ███╗░░██╗███████╗████████╗
@@ -98,7 +98,6 @@ contract FiftyFifty is Initializable, ERC721EnumerableUpgradeable, VRFConsumerBa
         __Ownable_init_unchained();
         __ReentrancyGuard_init_unchained();
 
-        admins[msg.sender] = true;
         // Chainlink Info
         keyHash = 0xf86195cf7690c55907b2b611ebb7343a6f649bff128701cc542f0569e2c549da;
         fee = 0.0001 * 10 ** 18; // 0.0001 LINK
@@ -477,5 +476,58 @@ contract FiftyFifty is Initializable, ERC721EnumerableUpgradeable, VRFConsumerBa
         yearlyWinner[currentYear] = winner;
 
         emit YearlyDraw(currentHolder, winner, currentYear, block.timestamp);
+    }
+
+/*
+    █▀█ █▀█ █▀▀ █▄░█ █▀ █▀▀ ▄▀█   █▀█ █░█ █▀▀ █▀█ █▀█ █ █▀▄ █▀▀
+    █▄█ █▀▀ ██▄ █░▀█ ▄█ ██▄ █▀█   █▄█ ▀▄▀ ██▄ █▀▄ █▀▄ █ █▄▀ ██▄
+*/
+    /**
+     * Override isApprovedForAll to auto-approve OS's proxy contract
+     */
+    function isApprovedForAll(address __owner, address _operator)
+        public
+        view
+        override
+        returns (bool isOperator)
+    {
+        // if OpenSea's ERC721 Proxy Address is detected, auto-return true
+        if (_operator == address(0x58807baD0B376efc12F5AD86aAc70E78ed67deaE)) {
+            return true;
+        }
+
+        // otherwise, use the default ERC721.isApprovedForAll()
+        return ERC721Upgradeable.isApprovedForAll(__owner, _operator);
+    }
+
+
+    function msgSender()
+        internal
+        view
+        returns (address payable sender)
+    {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                sender := and(
+                    mload(add(array, index)),
+                    0xffffffffffffffffffffffffffffffffffffffff
+                )
+            }
+        } else {
+            sender = payable(msg.sender);
+        }
+        return sender;
+    }
+
+    function _msgSender()
+        internal
+        override
+        view
+        returns (address sender)
+    {
+        return msgSender();
     }
 }
